@@ -54,7 +54,7 @@ func main() {
 	// start server
 	go grpcserver.ListenAndServe(":3001", grpcServer)
 	// start /metrics endpoint
-	goserver.ListenAndServeMetricsAndHealth(":8080")
+	goserver.ListenAndServeMetricsAndHealth(":8080", nil)
 }
 ```
 
@@ -94,6 +94,6 @@ func main() {
 	go httpServer.ListenAndServe()
 
 	// start /metrics endpoint
-	goserver.ListenAndServeMetricsAndHealth(":8080")
+	goserver.ListenAndServeMetricsAndHealth(":8080", nil)
 }
 ```
