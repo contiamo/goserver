@@ -1,15 +1,30 @@
+goserver
+========
+
+## Scope
+
+This package provides helpers to setup HTTP and gRPC servers following best practices.
+It includes helpers for
+
+* gRPC and HTTP
+  * logging
+  * tracing
+  * metrics collection
+  * recovery
+* only for gRPC
+  * credential loading
+  * reflection
+
+## Example
+
+### gRPC
+```go
 package main
 
 import (
 	"context"
-	"io"
-	"net/http"
-	"os"
-
 	"github.com/contiamo/goserver"
 	grpcserver "github.com/contiamo/goserver/grpc"
-	httpserver "github.com/contiamo/goserver/http"
-	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -18,23 +33,44 @@ func main() {
 	// setup grpc server with options
 	grpcServer, err := grpcserver.New(&grpcserver.Config{
 		Options: []grpcserver.Option{
-			grpcserver.WithTracing("localhost:6831", "example"),
-			grpcserver.WithLogging("grpc-echo"),
-			grpcserver.WithMetrics(),
-			grpcserver.WithRecovery(),
-			grpcserver.WithReflection(),
+          grpcserver.WithCredentials("cert.pem","key.pem","ca.pem"),
+          grpcserver.WithTracing("localhost:6831", "example"),
+          grpcserver.WithLogging("grpc-echo"),
+          grpcserver.WithMetrics(),
+          grpcserver.WithRecovery(),
+          grpcserver.WithReflection(),
 		},
 		Extras: []grpc.ServerOption{
-			grpc.MaxSendMsgSize(1 << 12),
+	      grpc.MaxSendMsgSize(1 << 12),
 		},
 		Register: func(srv *grpc.Server) {
-			RegisterEchoServer(srv, &echoServer{})
+		  RegisterEchoServer(srv, &echoServer{})
 		},
 	})
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
+	// start server
+	go grpcserver.ListenAndServe(":3001", grpcServer)
+	// start /metrics endpoint
+	goserver.ListenAndServeMetricsAndHealth(":8080")
+}
+```
+
+### HTTP
+```go
+package main
+
+import (
+	"io"
+	"net/http"
+	"github.com/contiamo/goserver"
+	httpserver "github.com/contiamo/goserver/http"
+	"github.com/sirupsen/logrus"
+)
+
+func main() {
 	// setup http server with options
 	httpServer, err := httpserver.New(&httpserver.Config{
 		Addr: ":8000",
@@ -54,21 +90,10 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	// start servers
+	// start server
 	go httpServer.ListenAndServe()
-	go grpcserver.ListenAndServe(":3001", grpcServer)
 
 	// start /metrics endpoint
 	goserver.ListenAndServeMetricsAndHealth(":8080")
 }
-
-// example grpc server
-type echoServer struct{}
-
-func (srv *echoServer) Echo(ctx context.Context, req *EchoRequest) (*EchoResponse, error) {
-	span, _ := opentracing.StartSpanFromContext(ctx, "logic")
-	defer span.Finish()
-	return &EchoResponse{
-		Data: req.Data,
-	}, nil
-}
+```
