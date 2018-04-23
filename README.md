@@ -1,5 +1,7 @@
 goserver
 ========
+[![Go Report Card](https://goreportcard.com/badge/github.com/contiamo/goserver)](https://goreportcard.com/report/github.com/contiamo/goserver)  [![Documentation](https://godoc.org/github.com/contiamo/goserver?status.svg)](http://godoc.org/github.com/contiamo/goserver)
+
 
 ## Scope
 
