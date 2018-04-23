@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-// WithCredentias configures the server to use the given cert/key combination.
+// WithCredentials configures the server to use the given cert/key combination.
 // If a ca file is supplied it is used to verify clients which now are required to have a certificate.
 func WithCredentials(cert, key, ca string) Option {
 	return &credentialOption{cert, key, ca}
