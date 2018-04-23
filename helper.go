@@ -36,12 +36,16 @@ func InitTracer(server, app string) error {
 }
 
 // ListenAndServeMetricsAndHealth starts up an HTTP server serving /metrics and /health
-func ListenAndServeMetricsAndHealth(addr string) error {
+func ListenAndServeMetricsAndHealth(addr string, healthHandler http.Handler) error {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"msg":"ok"}`))
-	})
+	if healthHandler != nil {
+		mux.Handle("/health", healthHandler)
+	} else {
+		mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(`{"msg":"ok"}`))
+		})
+	}
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: mux,
