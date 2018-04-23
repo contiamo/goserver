@@ -8,6 +8,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 )
 
+// WithTracing configures tracing for that server
 func WithTracing(server, app string) Option {
 	return &tracingOption{server, app}
 }

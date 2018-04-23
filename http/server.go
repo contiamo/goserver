@@ -48,6 +48,7 @@ func New(cfg *Config) (*http.Server, error) {
 	}, nil
 }
 
+// Option is the interface for all server options defined in this package
 type Option interface {
 	WrapHandler(handler http.Handler) (http.Handler, error)
 }

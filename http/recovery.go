@@ -7,6 +7,7 @@ import (
 	"github.com/bakins/net-http-recover"
 )
 
+// WithRecovery configures panic recovery for that server
 func WithRecovery(writer io.Writer, printStack bool) Option {
 	return &recoveryOption{writer, printStack}
 }

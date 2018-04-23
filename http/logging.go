@@ -7,6 +7,7 @@ import (
 	logrusmiddleware "github.com/trusch/logrus-middleware"
 )
 
+// WithLogging configures a logrus middleware for that server
 func WithLogging(app string) Option {
 	return &loggingOption{app}
 }

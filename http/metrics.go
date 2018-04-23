@@ -7,6 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// WithMetrics configures metrics collection
 func WithMetrics(app string) Option {
 	return &metricsOption{app}
 }
