@@ -85,7 +85,7 @@ func ListenAndServe(addr string, srv *grpc.Server) error {
 	return srv.Serve(lis)
 }
 
-// Options is the interface for the package supplied configuration helpers
+// Option is the interface for the package supplied configuration helpers
 type Option interface {
 	GetOptions() (grpc.ServerOption, grpc.StreamServerInterceptor, grpc.UnaryServerInterceptor, error)
 	PostProcess(s *grpc.Server) error
