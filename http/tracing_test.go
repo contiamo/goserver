@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"net/http"
 	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/contiamo/goserver/grpc"
-	"github.com/contiamo/goserver/grpc/test"
+	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("Tracing", func() {
@@ -18,12 +18,10 @@ var _ = Describe("Tracing", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		go runMockTracingServer(ctx, ":1234")
-		srv, err := createServerWithOptions([]Option{WithTracing("localhost:1234", "test")})
+		srv, err := createServer([]Option{WithTracing("localhost:1234", "test")})
 		Expect(err).NotTo(HaveOccurred())
-		go ListenAndServe(ctx, ":3007", srv)
-		cli, err := createPlaintextTestClient(ctx, "localhost:3007")
-		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Ping(ctx, &test.PingReq{})
+		go ListenAndServe(ctx, ":4004", srv)
+		_, err = http.Get("http://localhost:4004")
 		Expect(err).NotTo(HaveOccurred())
 		time.Sleep(1 * time.Second) // wait for span to be transmitted
 		Expect(receivedSomething).To(BeTrue())

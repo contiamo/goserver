@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
 
@@ -87,6 +88,7 @@ func ListenAndServe(ctx context.Context, addr string, srv *grpc.Server) error {
 		<-ctx.Done()
 		srv.GracefulStop()
 	}()
+	logrus.Info("start listening for gRPC requests on " + addr)
 	return srv.Serve(lis)
 }
 

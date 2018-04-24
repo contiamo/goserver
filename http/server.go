@@ -1,8 +1,11 @@
 package server
 
 import (
+	"context"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // Config contains the http servers config options
@@ -27,7 +30,7 @@ type Config struct {
 //  }
 // })
 //
-// srv.ListenAndServe()
+// srv.ListenAndServe(context.Background())
 func New(cfg *Config) (*http.Server, error) {
 	var (
 		h   = cfg.Handler
@@ -46,6 +49,21 @@ func New(cfg *Config) (*http.Server, error) {
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,
 	}, nil
+}
+
+// ListenAndServe serves an http server over TCP
+func ListenAndServe(ctx context.Context, addr string, srv *http.Server) error {
+	if addr != "" {
+		srv.Addr = addr
+	}
+	go func() {
+		<-ctx.Done()
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		srv.Shutdown(shutdownContext)
+	}()
+	logrus.Info("start listening for HTTP requests on " + srv.Addr)
+	return srv.ListenAndServe()
 }
 
 // Option is the interface for all server options defined in this package

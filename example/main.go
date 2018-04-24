@@ -37,7 +37,6 @@ func main() {
 
 	// setup http server with options
 	httpServer, err := httpserver.New(&httpserver.Config{
-		Addr: ":8000",
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			span, _ := opentracing.StartSpanFromContext(r.Context(), "logic")
 			defer span.Finish()
@@ -55,11 +54,12 @@ func main() {
 	}
 
 	// start servers
-	go httpServer.ListenAndServe()
-	go grpcserver.ListenAndServe(":3001", grpcServer)
-
-	// start /metrics and /health endpoint
-	goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	go httpserver.ListenAndServe(ctx, ":8000", httpServer)
+	go grpcserver.ListenAndServe(ctx, ":3001", grpcServer)
+	go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+	select {}
 }
 
 // example grpc server
