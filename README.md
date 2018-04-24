@@ -75,7 +75,6 @@ import (
 func main() {
 	// setup http server with options
 	httpServer, err := httpserver.New(&httpserver.Config{
-		Addr: ":8000",
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			span, _ := opentracing.StartSpanFromContext(r.Context(), "logic")
 			defer span.Finish()
@@ -93,7 +92,7 @@ func main() {
 	}
 
 	// start server
-	go httpServer.ListenAndServe()
+	go httpServer.ListenAndServe(context.Background(), ":8000")
 
 	// start /metrics endpoint
 	goserver.ListenAndServeMetricsAndHealth(":8080", nil)
