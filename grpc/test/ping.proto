@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package test;
+
+message PingReq {
+  string msg = 1;
+}
+
+message PingResp {
+  string msg = 1;
+}
+
+service PingPong {
+  rpc Ping (PingReq) returns (PingResp);
+  rpc Panic(PingReq) returns (PingResp);
+}

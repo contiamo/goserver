@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"net"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -77,11 +78,15 @@ func New(cfg *Config) (*grpc.Server, error) {
 }
 
 // ListenAndServe serves an gRPC server over TCP
-func ListenAndServe(addr string, srv *grpc.Server) error {
+func ListenAndServe(ctx context.Context, addr string, srv *grpc.Server) error {
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
 	}
+	go func() {
+		<-ctx.Done()
+		srv.GracefulStop()
+	}()
 	return srv.Serve(lis)
 }
 
