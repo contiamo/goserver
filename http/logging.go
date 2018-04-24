@@ -3,8 +3,8 @@ package server
 import (
 	"net/http"
 
+	logrusmiddleware "github.com/bakins/logrus-middleware"
 	"github.com/sirupsen/logrus"
-	logrusmiddleware "github.com/trusch/logrus-middleware"
 )
 
 // WithLogging configures a logrus middleware for that server

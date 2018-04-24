@@ -9,6 +9,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/bakins/logrus-middleware"
+  packages = ["."]
+  revision = "1e20b02c2c9fbae2da8a06168b19cc6fa8f07eef"
+
+[[projects]]
+  branch = "master"
   name = "github.com/bakins/net-http-recover"
   packages = ["."]
   revision = "6cba69d0145946c4f4584974df997378a3297ddc"
@@ -199,12 +205,6 @@
   version = "v1.0.5"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/trusch/logrus-middleware"
-  packages = ["."]
-  revision = "4c4902a6b2041ce1aa38710a064b3fc113100d5c"
-
-[[projects]]
   name = "github.com/uber/jaeger-client-go"
   packages = [
     ".",
@@ -344,6 +344,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c36138dde292c65a2d9c3aa4d8e9009570d1a462ed8a15eb23337da3cd059b43"
+  inputs-digest = "c174ebb220480d2af4def49e3ee5f1c192015914821cbf83688dd3ebe227f3ef"
   solver-name = "gps-cdcl"
   solver-version = 1
