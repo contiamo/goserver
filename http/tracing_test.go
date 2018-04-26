@@ -20,9 +20,23 @@ var _ = Describe("Tracing", func() {
 		srv, err := createServer([]Option{WithTracing("localhost:test", "test")})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
+		defer ts.Close()
 		_, err = http.Get(ts.URL + "/tracing")
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(len(tracer.FinishedSpans())).To(Equal(1))
+	})
+
+	It("should support websockets", func() {
+		srv, err := createServer([]Option{WithTracing("localhost:test", "test")})
+		Expect(err).NotTo(HaveOccurred())
+		ts := httptest.NewServer(srv.Handler)
+		defer ts.Close()
+
+		err = testWebsocketEcho(ts.URL)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(len(tracer.FinishedSpans())).To(Equal(1))
+
 	})
 })

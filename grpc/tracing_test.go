@@ -2,9 +2,6 @@ package server_test
 
 import (
 	"context"
-	"fmt"
-	"log"
-	"net"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -35,33 +32,3 @@ var _ = Describe("Tracing", func() {
 		Expect(len(tracer.FinishedSpans())).To(Equal(1))
 	})
 })
-
-func runMockTracingServer(ctx context.Context, addr string, buf []byte) error {
-
-	serverAddr, err := net.ResolveUDPAddr("udp", addr)
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	listener, err := net.ListenUDP("udp", serverAddr)
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	defer listener.Close()
-	for {
-		select {
-		case <-ctx.Done():
-			{
-				return ctx.Err()
-			}
-		default:
-			{
-				_, _, err := listener.ReadFromUDP(buf[:])
-				if err != nil {
-					fmt.Println("Error: ", err)
-				}
-			}
-		}
-	}
-}
