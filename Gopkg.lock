@@ -145,10 +145,17 @@
   packages = [
     ".",
     "ext",
-    "log"
+    "log",
+    "mocktracer"
   ]
   revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
   version = "v1.0.2"
+
+[[projects]]
+  name = "github.com/phayes/freeport"
+  packages = ["."]
+  revision = "b8543db493a5ed890c5499e935e2cad7504f3a04"
+  version = "1.0.2"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -251,7 +258,8 @@
     "idna",
     "internal/timeseries",
     "lex/httplex",
-    "trace"
+    "trace",
+    "websocket"
   ]
   revision = "d41e8174641f662c5a2d1c7a5f9e828788eb8706"
 
@@ -344,6 +352,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c174ebb220480d2af4def49e3ee5f1c192015914821cbf83688dd3ebe227f3ef"
+  inputs-digest = "58a9f66c2462f101e47f6dfb58846868a708de47c09abb06538b914d69af63c6"
   solver-name = "gps-cdcl"
   solver-version = 1

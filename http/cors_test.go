@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"net/http/httptest"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -24,10 +25,8 @@ var _ = Describe("CORS", func() {
 		allowCredentials := true
 		srv, err := createServer([]Option{WithCORS(allowedOrigins, allowedMethods, allowedHeaders, allowCredentials)})
 		Expect(err).NotTo(HaveOccurred())
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		go ListenAndServe(ctx, ":4004", srv)
-		req, _ := http.NewRequest(http.MethodOptions, "http://localhost:4004", nil)
+		ts := httptest.NewServer(srv.Handler)
+		req, _ := http.NewRequest(http.MethodOptions, ts.URL+"/cors", nil)
 		req.Header.Set("Access-Control-Request-Method", "HEAD")
 		req.Header.Set("Origin", "foo.bar")
 		resp, err := http.DefaultClient.Do(req)

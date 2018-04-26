@@ -3,46 +3,52 @@ package server_test
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/opentracing/opentracing-go/mocktracer"
 
 	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 )
 
 var _ = Describe("Tracing", func() {
+	tracer := mocktracer.New()
+	opentracing.SetGlobalTracer(tracer)
+
 	It("should be possible to setup tracing", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
-		go runMockTracingServer(ctx, ":1234")
-		srv, err := createServerWithOptions([]Option{WithTracing("localhost:1234", "test")})
+
+		srv, err := createServerWithOptions([]Option{WithTracing("localhost:test", "test")})
 		Expect(err).NotTo(HaveOccurred())
-		go ListenAndServe(ctx, ":3007", srv)
-		cli, err := createPlaintextTestClient(ctx, "localhost:3007")
+
+		go ListenAndServe(ctx, ":1234", srv)
+		cli, err := createPlaintextTestClient(ctx, "localhost:1234")
 		Expect(err).NotTo(HaveOccurred())
 		_, err = cli.Ping(ctx, &test.PingReq{})
 		Expect(err).NotTo(HaveOccurred())
-		time.Sleep(1 * time.Second) // wait for span to be transmitted
-		Expect(receivedSomething).To(BeTrue())
+
+		Expect(len(tracer.FinishedSpans())).To(Equal(1))
 	})
 })
 
-var receivedSomething bool
+func runMockTracingServer(ctx context.Context, addr string, buf []byte) error {
 
-func runMockTracingServer(ctx context.Context, addr string) error {
 	serverAddr, err := net.ResolveUDPAddr("udp", addr)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 	listener, err := net.ListenUDP("udp", serverAddr)
 	if err != nil {
+		log.Println(err.Error())
 		return err
 	}
 	defer listener.Close()
-	buf := make([]byte, 1024)
 	for {
 		select {
 		case <-ctx.Done():
@@ -52,7 +58,6 @@ func runMockTracingServer(ctx context.Context, addr string) error {
 		default:
 			{
 				_, _, err := listener.ReadFromUDP(buf[:])
-				receivedSomething = true
 				if err != nil {
 					fmt.Println("Error: ", err)
 				}

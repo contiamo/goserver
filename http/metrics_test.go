@@ -20,7 +20,7 @@ var _ = Describe("Metrics", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		go ListenAndServe(ctx, ":4002", srv)
-		_, err = http.Get("http://localhost:4002")
+		_, err = http.Get("http://localhost:4002/metrics_test")
 		Expect(err).NotTo(HaveOccurred())
 		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
 		resp, err := http.Get("http://localhost:8080/metrics")

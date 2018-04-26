@@ -2,8 +2,8 @@ package server_test
 
 import (
 	"bytes"
-	"context"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -19,10 +19,8 @@ var _ = Describe("Logging", func() {
 		logrus.SetOutput(buf)
 		srv, err := createServer([]Option{WithLogging("test")})
 		Expect(err).NotTo(HaveOccurred())
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		go ListenAndServe(ctx, ":4001", srv)
-		_, err = http.Get("http://localhost:4001")
+		ts := httptest.NewServer(srv.Handler)
+		_, err = http.Get(ts.URL + "/logging")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(strings.Contains(buf.String(), "completed handling request")).To(BeTrue())
 	})
