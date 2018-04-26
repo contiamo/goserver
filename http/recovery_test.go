@@ -1,9 +1,9 @@
 package server_test
 
 import (
-	"context"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,11 +17,21 @@ var _ = Describe("Recovery", func() {
 		logrus.SetOutput(ioutil.Discard)
 		srv, err := createServer([]Option{WithRecovery(ioutil.Discard, true)})
 		Expect(err).NotTo(HaveOccurred())
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		go ListenAndServe(ctx, ":4003", srv)
-		resp, err := http.Get("http://localhost:4003/panic")
+		ts := httptest.NewServer(srv.Handler)
+		defer ts.Close()
+		resp, err := http.Get(ts.URL + "/panic")
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.StatusCode).To(Equal(http.StatusInternalServerError))
+	})
+
+	It("should support websockets and tracing", func() {
+		logrus.SetOutput(ioutil.Discard)
+		srv, err := createServer([]Option{WithRecovery(ioutil.Discard, true)})
+		Expect(err).NotTo(HaveOccurred())
+		ts := httptest.NewServer(srv.Handler)
+		defer ts.Close()
+
+		err = testWebsocketEcho(ts.URL)
+		Expect(err).NotTo(HaveOccurred())
 	})
 })
