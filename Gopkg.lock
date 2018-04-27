@@ -9,12 +9,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/bakins/logrus-middleware"
-  packages = ["."]
-  revision = "1e20b02c2c9fbae2da8a06168b19cc6fa8f07eef"
-
-[[projects]]
-  branch = "master"
   name = "github.com/bakins/net-http-recover"
   packages = ["."]
   revision = "6cba69d0145946c4f4584974df997378a3297ddc"
@@ -135,12 +129,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/opentracing-contrib/go-stdlib"
-  packages = ["nethttp"]
-  revision = "36723135187404d2f4002f4f189938565e64cc5c"
-
-[[projects]]
   name = "github.com/opentracing/opentracing-go"
   packages = [
     ".",
@@ -150,12 +138,6 @@
   ]
   revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
   version = "v1.0.2"
-
-[[projects]]
-  name = "github.com/phayes/freeport"
-  packages = ["."]
-  revision = "b8543db493a5ed890c5499e935e2cad7504f3a04"
-  version = "1.0.2"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -239,6 +221,12 @@
   version = "v1.4.0"
 
 [[projects]]
+  name = "github.com/urfave/negroni"
+  packages = ["."]
+  revision = "5dbbc83f748fc3ad38585842b0aedab546d0ea1e"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -258,8 +246,7 @@
     "idna",
     "internal/timeseries",
     "lex/httplex",
-    "trace",
-    "websocket"
+    "trace"
   ]
   revision = "d41e8174641f662c5a2d1c7a5f9e828788eb8706"
 
@@ -352,6 +339,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "58a9f66c2462f101e47f6dfb58846868a708de47c09abb06538b914d69af63c6"
+  inputs-digest = "8d2093c8dc8d643cd4468a51cadf936ce4b974389839347d4e33ae1ec3646f22"
   solver-name = "gps-cdcl"
   solver-version = 1

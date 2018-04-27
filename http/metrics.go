@@ -31,6 +31,8 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 		},
 		[]string{"code", "method"},
 	)
+	prometheus.Unregister(latency)
+	prometheus.Unregister(requestsCounter)
 	if err := prometheus.Register(latency); err != nil {
 		return nil, err
 	}
