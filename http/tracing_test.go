@@ -32,10 +32,8 @@ var _ = Describe("Tracing", func() {
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
-
 		err = testWebsocketEcho(ts.URL)
 		Expect(err).NotTo(HaveOccurred())
-
 		Expect(len(tracer.FinishedSpans())).To(Equal(1))
 
 	})

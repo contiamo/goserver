@@ -35,7 +35,6 @@ var _ = Describe("CORS", func() {
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
-
 		err = testWebsocketEcho(ts.URL)
 		Expect(err).NotTo(HaveOccurred())
 	})
