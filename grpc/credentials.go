@@ -21,6 +21,10 @@ type credentialOption struct {
 }
 
 func (opt *credentialOption) GetOptions() (grpc.ServerOption, grpc.StreamServerInterceptor, grpc.UnaryServerInterceptor, error) {
+	if opt.cert == "" && opt.key == "" {
+		// not specifying keys is a noop
+		return nil, nil, nil, nil
+	}
 	certificate, err := tls.LoadX509KeyPair(opt.cert, opt.key)
 	if err != nil {
 		return nil, nil, nil, errors.Wrap(err, "could not load server key pair")
