@@ -44,7 +44,7 @@ func main() {
 		}),
 		Options: []httpserver.Option{
 			httpserver.WithLogging("http-echo"),
-			httpserver.WithTracing("localhost:6831", "example", map[string]string{"example.namespace": "test"}),
+			httpserver.WithTracing("localhost:6831", "example", map[string]string{"example.namespace": "test"}, nil),
 			httpserver.WithMetrics("http-echo"),
 			httpserver.WithRecovery(os.Stderr, true),
 		},

@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/contiamo/goserver"
@@ -14,13 +15,17 @@ import (
 // mainly from "github.com/opentracing-contrib/go-stdlib/nethttp"
 
 // WithTracing configures tracing for that server
-func WithTracing(server, app string, tags map[string]string) Option {
-	return &tracingOption{server, app, tags}
+func WithTracing(server, app string, tags map[string]string, opNameFunc func(r *http.Request) string) Option {
+	if opNameFunc == nil {
+		opNameFunc = methodAndPathCleanID
+	}
+	return &tracingOption{server, app, tags, opNameFunc}
 }
 
 type tracingOption struct {
 	server, app string
 	tags        map[string]string
+	opNameFunc  func(r *http.Request) string
 }
 
 func (opt *tracingOption) WrapHandler(handler http.Handler) (http.Handler, error) {
@@ -30,7 +35,7 @@ func (opt *tracingOption) WrapHandler(handler http.Handler) (http.Handler, error
 	mw := middleware(
 		opentracing.GlobalTracer(),
 		handler,
-		operationNameFunc(methodAndPathCleanUUID),
+		operationNameFunc(opt.opNameFunc),
 		mwSpanObserver(func(sp opentracing.Span, r *http.Request) {
 			sp.SetTag("http.uri", r.URL.EscapedPath())
 			for k, v := range opt.tags {
@@ -61,13 +66,19 @@ func operationNameFunc(f func(r *http.Request) string) mwOption {
 	}
 }
 
-func methodAndPathCleanUUID(r *http.Request) string {
+// methodAndPathCleanID replace string values that look like ids (uuids and int)
+// with "*"
+func methodAndPathCleanID(r *http.Request) string {
 	pathParts := strings.Split(r.URL.Path, "/")
 	for i, part := range pathParts {
-		_, err := uuid.Parse(part)
-		if err == nil {
+		if _, err := uuid.Parse(part); err == nil {
+			pathParts[i] = "*"
+			continue
+		}
+		if _, err := strconv.Atoi(part); err == nil {
 			pathParts[i] = "*"
 		}
+
 	}
 	return "HTTP " + r.Method + " " + strings.Join(pathParts, "/")
 }

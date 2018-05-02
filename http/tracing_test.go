@@ -17,7 +17,7 @@ var _ = Describe("Tracing", func() {
 	opentracing.SetGlobalTracer(tracer)
 
 	It("should be possible to setup tracing", func() {
-		srv, err := createServer([]Option{WithTracing("localhost:test", "test", nil)})
+		srv, err := createServer([]Option{WithTracing("localhost:test", "test", nil, nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
@@ -31,7 +31,7 @@ var _ = Describe("Tracing", func() {
 	It("should be possible to set additional tags", func() {
 		tagName := "testTag"
 		tagValue := "something to find"
-		srv, err := createServer([]Option{WithTracing("localhost:test", "test", map[string]string{tagName: tagValue})})
+		srv, err := createServer([]Option{WithTracing("localhost:test", "test", map[string]string{tagName: tagValue}, nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
@@ -46,7 +46,7 @@ var _ = Describe("Tracing", func() {
 	})
 
 	It("should replace uuid values with *", func() {
-		srv, err := createServer([]Option{WithTracing("localhost:test", "test", nil)})
+		srv, err := createServer([]Option{WithTracing("localhost:test", "test", nil, nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
@@ -60,7 +60,7 @@ var _ = Describe("Tracing", func() {
 	})
 
 	It("should allow websockets", func() {
-		srv, err := createServer([]Option{WithTracing("localhost:test", "test", nil)})
+		srv, err := createServer([]Option{WithTracing("localhost:test", "test", nil, nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
