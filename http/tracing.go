@@ -17,7 +17,7 @@ import (
 // WithTracing configures tracing for that server
 func WithTracing(server, app string, tags map[string]string, opNameFunc func(r *http.Request) string) Option {
 	if opNameFunc == nil {
-		opNameFunc = methodAndPathCleanID
+		opNameFunc = MethodAndPathCleanID
 	}
 	return &tracingOption{server, app, tags, opNameFunc}
 }
@@ -66,9 +66,9 @@ func operationNameFunc(f func(r *http.Request) string) mwOption {
 	}
 }
 
-// methodAndPathCleanID replace string values that look like ids (uuids and int)
+// MethodAndPathCleanID replace string values that look like ids (uuids and int)
 // with "*"
-func methodAndPathCleanID(r *http.Request) string {
+func MethodAndPathCleanID(r *http.Request) string {
 	pathParts := strings.Split(r.URL.Path, "/")
 	for i, part := range pathParts {
 		if _, err := uuid.Parse(part); err == nil {
