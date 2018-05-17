@@ -2,8 +2,11 @@ package server
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/contiamo/goserver"
+	uuid "github.com/google/uuid"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/urfave/negroni"
@@ -12,11 +15,18 @@ import (
 // mainly from "github.com/opentracing-contrib/go-stdlib/nethttp"
 
 // WithTracing configures tracing for that server
-func WithTracing(server, app string) Option {
-	return &tracingOption{server, app}
+func WithTracing(server, app string, tags map[string]string, opNameFunc func(r *http.Request) string) Option {
+	if opNameFunc == nil {
+		opNameFunc = MethodAndPathCleanID
+	}
+	return &tracingOption{server, app, tags, opNameFunc}
 }
 
-type tracingOption struct{ server, app string }
+type tracingOption struct {
+	server, app string
+	tags        map[string]string
+	opNameFunc  func(r *http.Request) string
+}
 
 func (opt *tracingOption) WrapHandler(handler http.Handler) (http.Handler, error) {
 	if err := goserver.InitTracer(opt.server, opt.app); err != nil {
@@ -25,11 +35,12 @@ func (opt *tracingOption) WrapHandler(handler http.Handler) (http.Handler, error
 	mw := middleware(
 		opentracing.GlobalTracer(),
 		handler,
-		operationNameFunc(func(r *http.Request) string {
-			return "HTTP " + r.Method + " " + r.URL.Path
-		}),
+		operationNameFunc(opt.opNameFunc),
 		mwSpanObserver(func(sp opentracing.Span, r *http.Request) {
 			sp.SetTag("http.uri", r.URL.EscapedPath())
+			for k, v := range opt.tags {
+				sp.SetTag(k, v)
+			}
 		}),
 		mwComponentName(opt.app),
 	)
@@ -53,6 +64,23 @@ func operationNameFunc(f func(r *http.Request) string) mwOption {
 	return func(options *mwOptions) {
 		options.opNameFunc = f
 	}
+}
+
+// MethodAndPathCleanID replace string values that look like ids (uuids and int)
+// with "*"
+func MethodAndPathCleanID(r *http.Request) string {
+	pathParts := strings.Split(r.URL.Path, "/")
+	for i, part := range pathParts {
+		if _, err := uuid.Parse(part); err == nil {
+			pathParts[i] = "*"
+			continue
+		}
+		if _, err := strconv.Atoi(part); err == nil {
+			pathParts[i] = "*"
+		}
+
+	}
+	return "HTTP " + r.Method + " " + strings.Join(pathParts, "/")
 }
 
 // mwSpanObserver returns a MWOption that observe the span
@@ -99,6 +127,10 @@ func middleware(tr opentracing.Tracer, h http.Handler, options ...mwOption) http
 			return "HTTP " + r.Method
 		},
 		spanObserver: func(span opentracing.Span, r *http.Request) {},
+	}
+
+	for _, opt := range options {
+		opt(&opts)
 	}
 
 	fn := func(w http.ResponseWriter, r *http.Request) {
