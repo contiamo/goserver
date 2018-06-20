@@ -27,7 +27,13 @@ func (opt *tracingOption) GetOptions() (grpc.ServerOption, grpc.StreamServerInte
 		req, resp interface{},
 		grpcError error) {
 	}))
-	return nil, nil, ui, nil
+	si := otgrpc.OpenTracingStreamServerInterceptor(opentracing.GlobalTracer(), otgrpc.SpanDecorator(func(
+		span opentracing.Span,
+		method string,
+		req, resp interface{},
+		grpcError error) {
+	}))
+	return nil, si, ui, nil
 }
 
 func (opt *tracingOption) PostProcess(s *grpc.Server) error {
