@@ -5,12 +5,13 @@ import (
 	"context"
 	"strings"
 
+	"google.golang.org/grpc/metadata"
+
+	"github.com/contiamo/goserver/grpc/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/contiamo/goserver/grpc/test"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/metadata"
 )
 
 var _ = Describe("Logging", func() {
@@ -23,8 +24,9 @@ var _ = Describe("Logging", func() {
 		Expect(srv).NotTo(BeNil())
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		go ListenAndServe(ctx, ":3003", srv)
-		cli, err := createPlaintextTestClient(ctx, "localhost:3003")
+		cli, err := createPlaintextTestClient(ctx, ":3003")
 		Expect(err).NotTo(HaveOccurred())
 
 		md := metadata.New(map[string]string{"test": "value"})
@@ -33,7 +35,8 @@ var _ = Describe("Logging", func() {
 		resp, err := cli.Ping(ctx, &test.PingReq{Msg: "test"})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.Msg).To(Equal("test"))
-		Expect(strings.Contains(buf.String(), "finished unary call with code OK")).To(BeTrue())
-		Expect(strings.Contains(buf.String(), "test:\"value\"")).To(BeTrue())
+
+		Expect(strings.Contains(buf.String(), "finished unary call with code OK")).To(BeTrue(), "This should be an expected OK message in logs but got %s", buf.String())
+		Expect(strings.Contains(buf.String(), "test:\"value\"")).To(BeTrue(), "This should be the value in logs but got %s", buf.String())
 	})
 })
