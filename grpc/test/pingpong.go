@@ -1,6 +1,9 @@
 package test
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 func NewPingPongServer() PingPongServer {
 	return &pingPongServer{}
@@ -12,6 +15,6 @@ func (srv *pingPongServer) Ping(ctx context.Context, req *PingReq) (*PingResp, e
 	return &PingResp{Msg: req.Msg}, nil
 }
 func (srv *pingPongServer) Panic(ctx context.Context, req *PingReq) (*PingResp, error) {
-	panic(req)
+	panic(errors.New(req.Msg))
 	return &PingResp{Msg: req.Msg}, nil
 }
