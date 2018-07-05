@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"strings"
+	"time"
 
 	"google.golang.org/grpc/metadata"
 
@@ -19,8 +20,10 @@ var _ = Describe("Logging", func() {
 	It("should be possible to setup logging option", func() {
 		buf := &bytes.Buffer{}
 		level := logrus.GetLevel()
+		logrus.SetFormatter(&logrus.TextFormatter{DisableColors: false})
 		logrus.SetOutput(buf)
 		logrus.SetLevel(logrus.DebugLevel)
+
 		defer func() {
 			logrus.SetOutput(os.Stdout)
 			logrus.SetLevel(level)
@@ -32,17 +35,16 @@ var _ = Describe("Logging", func() {
 		defer cancel()
 
 		go ListenAndServe(ctx, ":3003", srv)
+		time.Sleep(time.Second)
 		cli, err := createPlaintextTestClient(ctx, ":3003")
 		Expect(err).NotTo(HaveOccurred())
 
 		md := metadata.New(map[string]string{"test": "value"})
 		ctx = metadata.NewOutgoingContext(ctx, md)
-
 		resp, err := cli.Ping(ctx, &test.PingReq{Msg: "test"})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.Msg).To(Equal("test"))
 
-		Expect(strings.Contains(buf.String(), "finished unary call with code OK")).To(BeTrue(), "This should be an expected OK message in logs but got %s", buf.String())
-		Expect(strings.Contains(buf.String(), "test:\"value\"")).To(BeTrue(), "This should be the value in logs but got %s", buf.String())
+		Expect(strings.Contains(buf.String(), "test=value")).To(BeTrue(), "This should be the value in logs but got %s", buf.String())
 	})
 })
