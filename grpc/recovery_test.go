@@ -1,4 +1,4 @@
-package server_test
+package grpc
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
-	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 )
 

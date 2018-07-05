@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/contiamo/goserver"
-	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("Metrics", func() {

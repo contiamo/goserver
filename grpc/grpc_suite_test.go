@@ -1,11 +1,10 @@
-package server_test
+package grpc
 
 import (
 	"context"
 	"crypto/tls"
 	"testing"
 
-	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

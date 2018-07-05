@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"fmt"
@@ -9,7 +9,6 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	httpserver "github.com/contiamo/goserver/http"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -39,7 +38,7 @@ func echoWS(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createServer(opts []httpserver.Option) (*http.Server, error) {
+func createServer(opts []Option) (*http.Server, error) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/ws/", echoWS)
@@ -50,7 +49,7 @@ func createServer(opts []httpserver.Option) (*http.Server, error) {
 		io.Copy(w, r.Body)
 	})
 
-	return httpserver.New(&httpserver.Config{
+	return New(&Config{
 		Handler: mux,
 		Options: opts,
 	})

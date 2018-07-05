@@ -1,4 +1,4 @@
-package server
+package grpc
 
 import (
 	"github.com/contiamo/goserver"

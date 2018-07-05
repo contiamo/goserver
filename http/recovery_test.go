@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"io/ioutil"
@@ -8,8 +8,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/sirupsen/logrus"
-
-	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("Recovery", func() {

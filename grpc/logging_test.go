@@ -1,4 +1,4 @@
-package server_test
+package grpc
 
 import (
 	"bytes"
@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 	"github.com/sirupsen/logrus"
 )

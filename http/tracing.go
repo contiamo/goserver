@@ -1,4 +1,4 @@
-package server
+package http
 
 import (
 	"net/http"
@@ -106,7 +106,7 @@ func mwComponentName(componentName string) mwOption {
 // This can be overriden with options.
 //
 // Example:
-// 	 http.ListenAndServe("localhost:80", nethttp.Middleware(tracer, http.DefaultServeMux))
+//	 http.ListenAndServe("localhost:80", nethttp.Middleware(tracer, http.DefaultServeMux))
 //
 // The options allow fine tuning the behavior of the middleware.
 //
@@ -115,7 +115,7 @@ func mwComponentName(componentName string) mwOption {
 //      tracer,
 //      http.DefaultServeMux,
 //      netottp.OperationNameFunc(func(r *http.Request) string {
-//	        return "HTTP " + r.Method + ":/api/customers"
+//		return "HTTP " + r.Method + ":/api/customers"
 //      }),
 //      nethttp mwSpanObserver(func(sp opentracing.Span, r *http.Request) {
 //			sp.SetTag("http.uri", r.URL.EscapedPath())

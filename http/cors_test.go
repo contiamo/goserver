@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"net/http"
@@ -6,8 +6,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("CORS", func() {

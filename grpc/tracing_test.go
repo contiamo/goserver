@@ -1,4 +1,4 @@
-package server_test
+package grpc
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
 
-	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 )
 
