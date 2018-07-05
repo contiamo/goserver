@@ -2,9 +2,12 @@ package grpc
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 
@@ -13,6 +16,10 @@ import (
 
 var _ = Describe("Recovery", func() {
 	It("should recover from panic when recovery option is set", func() {
+		logrus.SetOutput(ioutil.Discard)
+		defer func() {
+			logrus.SetOutput(os.Stdout)
+		}()
 		srv, err := createServerWithOptions([]Option{WithRecovery()})
 		Expect(err).NotTo(HaveOccurred())
 		ctx, cancel := context.WithCancel(context.Background())

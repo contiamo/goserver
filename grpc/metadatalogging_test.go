@@ -3,6 +3,7 @@ package grpc
 import (
 	"bytes"
 	"context"
+	"os"
 	"strings"
 
 	"google.golang.org/grpc/metadata"
@@ -17,8 +18,13 @@ import (
 var _ = Describe("Logging", func() {
 	It("should be possible to setup logging option", func() {
 		buf := &bytes.Buffer{}
+		level := logrus.GetLevel()
 		logrus.SetOutput(buf)
 		logrus.SetLevel(logrus.DebugLevel)
+		defer func() {
+			logrus.SetOutput(os.Stdout)
+			logrus.SetLevel(level)
+		}()
 		srv, err := createServerWithOptions([]Option{WithMDLogging()})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(srv).NotTo(BeNil())

@@ -3,6 +3,7 @@ package grpc
 import (
 	"bytes"
 	"context"
+	"os"
 	"strings"
 
 	. "github.com/onsi/ginkgo"
@@ -16,6 +17,9 @@ var _ = Describe("Logging", func() {
 	It("should be possible to setup logging option", func() {
 		buf := &bytes.Buffer{}
 		logrus.SetOutput(buf)
+		defer func() {
+			logrus.SetOutput(os.Stdout)
+		}()
 		srv, err := createServerWithOptions([]Option{WithLogging("test")})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(srv).NotTo(BeNil())

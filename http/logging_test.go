@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"time"
 
@@ -17,6 +18,9 @@ var _ = Describe("Logging", func() {
 	It("should be possible to configure logging", func() {
 		buf := &bytes.Buffer{}
 		logrus.SetOutput(buf)
+		defer func() {
+			logrus.SetOutput(os.Stdout)
+		}()
 		srv, err := createServer([]Option{WithLogging("test")})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
@@ -29,6 +33,9 @@ var _ = Describe("Logging", func() {
 	It("should support websockets", func() {
 		buf := &Buffer{}
 		logrus.SetOutput(buf)
+		defer func() {
+			logrus.SetOutput(os.Stdout)
+		}()
 		srv, err := createServer([]Option{WithLogging("test")})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
