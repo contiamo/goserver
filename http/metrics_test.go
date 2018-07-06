@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,10 +20,18 @@ var _ = Describe("Metrics", func() {
 		Expect(err).NotTo(HaveOccurred())
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		go ListenAndServe(ctx, ":4002", srv)
+		// it takes some time to run the server, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		_, err = http.Get("http://localhost:4002/metrics_test")
 		Expect(err).NotTo(HaveOccurred())
+
 		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+		// it takes some time to run the server, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		resp, err := http.Get("http://localhost:8080/metrics")
 		Expect(err).NotTo(HaveOccurred())
 		defer resp.Body.Close()
@@ -40,6 +49,9 @@ var _ = Describe("Metrics", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+		// it takes some time to run the server, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		resp, err := http.Get("http://localhost:8080/metrics")
 		Expect(err).NotTo(HaveOccurred())
 		defer resp.Body.Close()

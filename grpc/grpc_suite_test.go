@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/contiamo/goserver/grpc/test"
+	utils "github.com/contiamo/goserver/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"google.golang.org/grpc"
@@ -14,6 +15,8 @@ import (
 
 func TestGrpc(t *testing.T) {
 	RegisterFailHandler(Fail)
+	restore := utils.DiscardLogging()
+	defer restore()
 	RunSpecs(t, "Grpc Suite")
 }
 

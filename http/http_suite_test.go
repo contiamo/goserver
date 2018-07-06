@@ -9,12 +9,15 @@ import (
 
 	"github.com/gorilla/websocket"
 
+	utils "github.com/contiamo/goserver/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 func TestHttp(t *testing.T) {
 	RegisterFailHandler(Fail)
+	restore := utils.DiscardLogging()
+	defer restore()
 	RunSpecs(t, "Http Suite")
 }
 

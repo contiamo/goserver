@@ -4,20 +4,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Recovery", func() {
 	It("should be possible to configure panic recovery", func() {
-		logrus.SetOutput(ioutil.Discard)
-		defer func() {
-			logrus.SetOutput(os.Stdout)
-		}()
-
 		srv, err := createServer([]Option{WithRecovery(ioutil.Discard, true)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
@@ -28,7 +21,6 @@ var _ = Describe("Recovery", func() {
 	})
 
 	It("should support websockets and tracing", func() {
-		logrus.SetOutput(ioutil.Discard)
 		srv, err := createServer([]Option{WithRecovery(ioutil.Discard, true)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)

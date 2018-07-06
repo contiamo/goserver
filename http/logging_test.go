@@ -1,26 +1,22 @@
 package http
 
 import (
-	"bytes"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"time"
 
+	utils "github.com/contiamo/goserver/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Logging", func() {
 
 	It("should be possible to configure logging", func() {
-		buf := &bytes.Buffer{}
-		logrus.SetOutput(buf)
-		defer func() {
-			logrus.SetOutput(os.Stdout)
-		}()
+		buf, restore := utils.SetupLoggingBuffer()
+		defer restore()
+
 		srv, err := createServer([]Option{WithLogging("test")})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
@@ -31,11 +27,9 @@ var _ = Describe("Logging", func() {
 	})
 
 	It("should support websockets", func() {
-		buf := &Buffer{}
-		logrus.SetOutput(buf)
-		defer func() {
-			logrus.SetOutput(os.Stdout)
-		}()
+		buf, restore := utils.SetupLoggingBuffer()
+		defer restore()
+
 		srv, err := createServer([]Option{WithLogging("test")})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
@@ -46,16 +40,3 @@ var _ = Describe("Logging", func() {
 		Expect(strings.Contains(buf.String(), "successfully handled request")).To(BeTrue())
 	})
 })
-
-type Buffer struct {
-	data []byte
-}
-
-func (b *Buffer) Write(data []byte) (int, error) {
-	b.data = append(b.data, data...)
-	return len(data), nil
-}
-
-func (b *Buffer) String() string {
-	return string(b.data)
-}

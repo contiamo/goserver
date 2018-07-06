@@ -1,33 +1,23 @@
 package grpc
 
 import (
-	"bytes"
 	"context"
-	"os"
 	"strings"
 	"time"
 
 	"google.golang.org/grpc/metadata"
 
 	"github.com/contiamo/goserver/grpc/test"
+	utils "github.com/contiamo/goserver/test"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Logging", func() {
 	It("should be possible to setup logging option", func() {
-		buf := &bytes.Buffer{}
-		level := logrus.GetLevel()
-		logrus.SetFormatter(&logrus.TextFormatter{DisableColors: false})
-		logrus.SetOutput(buf)
-		logrus.SetLevel(logrus.DebugLevel)
+		buf, restore := utils.SetupLoggingBuffer()
+		defer restore()
 
-		defer func() {
-			logrus.SetOutput(os.Stdout)
-			logrus.SetLevel(level)
-		}()
 		srv, err := createServerWithOptions([]Option{WithMDLogging()})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(srv).NotTo(BeNil())
@@ -35,7 +25,9 @@ var _ = Describe("Logging", func() {
 		defer cancel()
 
 		go ListenAndServe(ctx, ":3003", srv)
-		time.Sleep(time.Second)
+		// it takes some time to run the server, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		cli, err := createPlaintextTestClient(ctx, ":3003")
 		Expect(err).NotTo(HaveOccurred())
 
