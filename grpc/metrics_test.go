@@ -1,16 +1,16 @@
-package server_test
+package grpc
 
 import (
 	"context"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"github.com/contiamo/goserver"
-	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 )
 
@@ -21,8 +21,12 @@ var _ = Describe("Metrics", func() {
 		Expect(srv).NotTo(BeNil())
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		go ListenAndServe(ctx, ":3004", srv)
 		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+		// it takes some time to run the servers, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		cli, err := createPlaintextTestClient(ctx, "localhost:3004")
 		Expect(err).NotTo(HaveOccurred())
 		_, err = cli.Ping(ctx, &test.PingReq{Msg: "test"})

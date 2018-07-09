@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 
 	grpcserver "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
-	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("Grpcweb", func() {

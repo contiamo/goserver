@@ -1,12 +1,12 @@
-package server_test
+package grpc
 
 import (
 	"context"
+	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/contiamo/goserver/grpc"
 	"github.com/contiamo/goserver/grpc/test"
 )
 
@@ -20,7 +20,11 @@ var _ = Describe("Credentials", func() {
 		Expect(srv).NotTo(BeNil())
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		go ListenAndServe(ctx, ":3001", srv)
+		// it takes some time to run the server, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		cli, err := createTestClient(ctx, "localhost:3001")
 		Expect(err).NotTo(HaveOccurred())
 		resp, err := cli.Ping(ctx, &test.PingReq{Msg: "test"})
@@ -37,7 +41,11 @@ var _ = Describe("Credentials", func() {
 		Expect(srv).NotTo(BeNil())
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
+
 		go ListenAndServe(ctx, ":3002", srv)
+		// it takes some time to run the server, can't be accessed immediately
+		time.Sleep(100 * time.Millisecond)
+
 		cli, err := createTestClient(ctx, "localhost:3002")
 		Expect(err).NotTo(HaveOccurred())
 		resp, err := cli.Ping(ctx, &test.PingReq{Msg: "test"})

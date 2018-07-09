@@ -76,7 +76,7 @@
   branch = "master"
   name = "github.com/grpc-ecosystem/grpc-opentracing"
   packages = ["go/otgrpc"]
-  revision = "0e7658f8ee99ee5aa683e2a032b8880091b7a055"
+  revision = "8e809c8a86450a29b90dcc9efbf062d0fe6d9746"
 
 [[projects]]
   name = "github.com/improbable-eng/grpc-web"
@@ -345,6 +345,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d375127ccb0621d8c3bd930edc5cb38da8f0ce94d6880ad67109ef99c0ca16ee"
+  inputs-digest = "df47e7edbf999da0be564db9909cf3860b7d98445004312b31b89271d531ea4b"
   solver-name = "gps-cdcl"
   solver-version = 1

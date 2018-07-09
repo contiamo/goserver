@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"net/http"
@@ -8,8 +8,6 @@ import (
 	. "github.com/onsi/gomega"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/mocktracer"
-
-	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("Tracing", func() {

@@ -1,4 +1,4 @@
-package server_test
+package http
 
 import (
 	"io/ioutil"
@@ -7,14 +7,10 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sirupsen/logrus"
-
-	. "github.com/contiamo/goserver/http"
 )
 
 var _ = Describe("Recovery", func() {
 	It("should be possible to configure panic recovery", func() {
-		logrus.SetOutput(ioutil.Discard)
 		srv, err := createServer([]Option{WithRecovery(ioutil.Discard, true)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
@@ -25,7 +21,6 @@ var _ = Describe("Recovery", func() {
 	})
 
 	It("should support websockets and tracing", func() {
-		logrus.SetOutput(ioutil.Discard)
 		srv, err := createServer([]Option{WithRecovery(ioutil.Discard, true)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
