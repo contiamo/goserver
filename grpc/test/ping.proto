@@ -10,7 +10,16 @@ message PingResp {
   string msg = 1;
 }
 
+message ErrorReq {
+  uint32 code = 1;
+  string msg = 2;
+}
+
+message Empty {}
+
 service PingPong {
   rpc Ping (PingReq) returns (PingResp);
   rpc Panic(PingReq) returns (PingResp);
+  rpc Err(ErrorReq) returns (Empty);
 }
+
