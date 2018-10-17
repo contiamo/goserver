@@ -3,12 +3,33 @@
 package aes
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/sha256"
+	"encoding/base64"
 	"errors"
 	"io"
 )
+
+func Decrypt(msg, key string) (string, error) {
+	msgBytes, err := base64.StdEncoding.DecodeString(msg)
+	if err != nil {
+		return "", err
+	}
+
+	decoder, err := NewReader(bytes.NewReader(msgBytes), key)
+	if err != nil {
+		return "", err
+	}
+	defer decoder.Close()
+
+	buf := &bytes.Buffer{}
+	if _, err = io.Copy(buf, decoder); err != nil {
+		return "", err
+	}
+	return string(buf.Bytes()), nil
+}
 
 // NewReader returns a new aes reader
 func NewReader(base io.Reader, key string) (io.ReadCloser, error) {

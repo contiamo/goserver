@@ -13,7 +13,8 @@ import (
 
 // WithErrorScrubbing ensures that internal or unknown errors do not leak information.
 // You  may pass a function to customize the scrubbing behavior. The package provides
-// two simple scrubbers: SimpleErrorScrubber and NoopErrorScrubber for convenience.
+// two simple scrubbers: SimpleErrorScrubber, EncryptedErrorScrubber, and NoopErrorScrubber
+// for convenience.
 func WithErrorScrubbing(scrubber func(error) error) Option {
 	if scrubber == nil {
 		scrubber = SimpleErrorScrubber
@@ -76,9 +77,9 @@ func SimpleErrorScrubber(err error) error {
 	}
 }
 
-// NewEncryptedErrorScrubber replaces unknown or internal errors with a generic error object. The
+// EncryptedErrorScrubber replaces unknown or internal errors with a generic error object. The
 // original error message is encrypted and added to the error message in the status.Details
-func NewEncryptedErrorScrubber(key string) func(error) error {
+func EncryptedErrorScrubber(key string) func(error) error {
 	return func(err error) error {
 		switch status.Code(err) {
 		case codes.Unknown, codes.Internal:
