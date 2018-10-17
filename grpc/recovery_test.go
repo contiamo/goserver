@@ -30,7 +30,7 @@ var _ = Describe("Recovery", func() {
 
 		cli, err := createPlaintextTestClient(ctx, "localhost:3005")
 		Expect(err).NotTo(HaveOccurred())
-		_, err = cli.Panic(ctx, &test.PingReq{"Very bad panic"})
+		_, err = cli.Panic(ctx, &test.PingReq{Msg: "Very bad panic"})
 
 		Expect(err).To(HaveOccurred())
 		Expect(grpc.Code(err)).To(Equal(codes.Internal))
