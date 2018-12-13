@@ -1,25 +1,25 @@
-goserver
-========
-[![Go Report Card](https://goreportcard.com/badge/github.com/contiamo/goserver)](https://goreportcard.com/report/github.com/contiamo/goserver)  [![Documentation](https://godoc.org/github.com/contiamo/goserver?status.svg)](http://godoc.org/github.com/contiamo/goserver)
+# goserver
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/contiamo/goserver)](https://goreportcard.com/report/github.com/contiamo/goserver) [![Documentation](https://godoc.org/github.com/contiamo/goserver?status.svg)](http://godoc.org/github.com/contiamo/goserver)
 
 ## Scope
 
 This package provides helpers to setup HTTP and gRPC servers following best practices.
 It includes helpers for
 
-* gRPC and HTTP
-  * logging
-  * tracing
-  * metrics collection
-  * recovery
-* only for gRPC
-  * credential loading
-  * reflection
+- gRPC and HTTP
+  - logging
+  - tracing
+  - metrics collection
+  - recovery
+- only for gRPC
+  - credential loading
+  - reflection
 
 ## Example
 
 ### gRPC
+
 ```go
 package main
 
@@ -61,6 +61,7 @@ func main() {
 ```
 
 ### HTTP
+
 ```go
 package main
 
@@ -83,7 +84,7 @@ func main() {
     Options: []httpserver.Option{
       httpserver.WithLogging("http-echo"),
       httpserver.WithTracing("localhost:6831", "example"),
-      httpserver.WithMetrics("http-echo"),
+      httpserver.WithMetrics("http-echo", nil),
       httpserver.WithRecovery(os.Stderr, true),
     },
   })
