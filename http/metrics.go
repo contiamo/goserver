@@ -39,7 +39,7 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 		ConstLabels: constLabels,
 		Buckets:     durationMsBuckets,
 	},
-		[]string{"code", "method"},
+		[]string{"code", "method", "path"},
 	)
 	requestCounter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
