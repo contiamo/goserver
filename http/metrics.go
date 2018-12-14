@@ -2,44 +2,96 @@ package http
 
 import (
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/urfave/negroni"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	durationMsBuckets = []float64{10, 50, 100, 200, 300, 500, 1000, 2000, 3000, 5000, 10000, 15000, 20000, 30000}
+	sizeBytesBuckets  = []float64{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304}
 )
 
 // WithMetrics configures metrics collection
-func WithMetrics(app string) Option {
-	return &metricsOption{app}
+func WithMetrics(app string, opNameFunc func(r *http.Request) string) Option {
+	if opNameFunc == nil {
+		opNameFunc = MethodAndPathCleanID
+	}
+	return &metricsOption{app, opNameFunc}
 }
 
-type metricsOption struct{ app string }
+type metricsOption struct {
+	app        string
+	opNameFunc func(r *http.Request) string
+}
 
 func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error) {
-	latency := prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Name:        "latencies",
-		Help:        "How long it took to process the request, partitioned by status code, method and HTTP path.",
-		ConstLabels: prometheus.Labels{"service": opt.app},
-		Buckets:     []float64{300, 1200, 5000},
+	constLabels := prometheus.Labels{"service": opt.app, "instance": getHostname()}
+	requestDuration := prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace:   "http",
+		Subsystem:   "request",
+		Name:        "duration_ms",
+		Help:        "The duration of a request in milliseconds by status, method, and path.",
+		ConstLabels: constLabels,
+		Buckets:     durationMsBuckets,
 	},
-		[]string{"code", "method"},
+		[]string{"code", "method", "path"},
 	)
-	requestsCounter := prometheus.NewCounterVec(
+	requestCounter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name:        "requests",
-			Help:        "How many HTTP requests processed, partitioned by status code, method and HTTP path.",
-			ConstLabels: prometheus.Labels{"service": opt.app},
+			Namespace:   "http",
+			Subsystem:   "request",
+			Name:        "total",
+			Help:        "Count of the requests by status, method, and path.",
+			ConstLabels: constLabels,
 		},
-		[]string{"code", "method"},
+		[]string{"code", "method", "path"},
 	)
-	prometheus.Unregister(latency)
-	prometheus.Unregister(requestsCounter)
-	if err := prometheus.Register(latency); err != nil {
+	responseSize := prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace:   "http",
+		Subsystem:   "response",
+		Name:        "size_bytes",
+		Help:        "The size of the response in bytes by status, method, and path.",
+		ConstLabels: constLabels,
+		Buckets:     sizeBytesBuckets,
+	},
+		[]string{"code", "method", "path"},
+	)
+	prometheus.Unregister(requestDuration)
+	prometheus.Unregister(requestCounter)
+	prometheus.Unregister(responseSize)
+
+	if err := prometheus.Register(requestDuration); err != nil {
 		return nil, err
 	}
-	if err := prometheus.Register(requestsCounter); err != nil {
+	if err := prometheus.Register(requestCounter); err != nil {
 		return nil, err
 	}
-	handler = promhttp.InstrumentHandlerDuration(latency, handler)
-	handler = promhttp.InstrumentHandlerCounter(requestsCounter, handler)
-	return handler, nil
+	if err := prometheus.Register(responseSize); err != nil {
+		return nil, err
+	}
+
+	mw := http.HandlerFunc(func(writer http.ResponseWriter, r *http.Request) {
+		instrumentedWriter := negroni.NewResponseWriter(writer)
+
+		defer func(begun time.Time) {
+			l := prometheus.Labels{
+				"code":   strconv.Itoa(instrumentedWriter.Status()),
+				"method": strings.ToLower(r.Method),
+				"path":   opt.opNameFunc(r),
+			}
+
+			requestCounter.With(l).Inc()
+			requestDuration.With(l).Observe(float64(time.Since(begun).Seconds() * 1000))
+			responseSize.With(l).Observe(float64(instrumentedWriter.Size()))
+		}(time.Now())
+
+		handler.ServeHTTP(instrumentedWriter, r)
+	})
+
+	return mw, nil
 }
