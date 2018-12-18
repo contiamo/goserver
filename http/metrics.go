@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	uuid "github.com/google/uuid"
 	"github.com/urfave/negroni"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -19,7 +20,7 @@ var (
 // WithMetrics configures metrics collection
 func WithMetrics(app string, opNameFunc func(r *http.Request) string) Option {
 	if opNameFunc == nil {
-		opNameFunc = MethodAndPathCleanID
+		opNameFunc = PathWithCleanID
 	}
 	return &metricsOption{app, opNameFunc}
 }
@@ -94,4 +95,20 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 	})
 
 	return mw, nil
+}
+
+// PathWithCleanID replace string values that look like ids (uuids and int) with "*"
+func PathWithCleanID(r *http.Request) string {
+	pathParts := strings.Split(r.URL.Path, "/")
+	for i, part := range pathParts {
+		if _, err := uuid.Parse(part); err == nil {
+			pathParts[i] = "*"
+			continue
+		}
+		if _, err := strconv.Atoi(part); err == nil {
+			pathParts[i] = "*"
+		}
+
+	}
+	return strings.Join(pathParts, "/")
 }
