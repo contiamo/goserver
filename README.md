@@ -98,3 +98,36 @@ func main() {
   goserver.ListenAndServeMetricsAndHealth(":8080", nil)
 }
 ```
+
+## Using goserver as Middleware
+It's not necessary to use goserver's server component. It is also possible to use it just as middleware in other servers. For example,
+to use goserver's recovery and logging middleware with [chi](https://github.com/go-chi/chi), you can do the following:
+```go
+package main
+
+import (
+  "io"
+  "net/http"
+
+  goserver "github.com/contiamo/goserver/http"
+
+  "github.com/go-chi/chi"
+)
+
+func main() {
+  r := chi.NewRouter()
+
+  // initialize goserver middleware
+  logging := goserver.WithLogging("application-name")
+  recovery := goserver.WithRecovery(os.Stderr, true)
+
+  // tell the chi router to use the goserver middleware
+  r.Use(logging.WrapHandler)
+  r.Use(recovery.WrapHandler)
+
+  // ... setup your routes and handlers...
+
+  // start the server
+  http.ListenAndServe(":8080", r)
+}
+```
