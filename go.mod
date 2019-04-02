@@ -23,6 +23,7 @@ require (
 	github.com/prometheus/procfs v0.0.0-20180408092902-8b1c2da0d56d // indirect
 	github.com/rs/cors v1.3.0
 	github.com/sirupsen/logrus v1.0.5
+	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/uber/jaeger-client-go v2.13.0+incompatible
 	github.com/uber/jaeger-lib v1.4.0 // indirect
 	github.com/urfave/negroni v0.3.0
@@ -30,7 +31,9 @@ require (
 	golang.org/x/net v0.0.0-20180418062111-d41e8174641f
 	golang.org/x/sys v0.0.0-20180419222023-a2a45943ae67 // indirect
 	golang.org/x/text v0.3.0 // indirect
-	google.golang.org/genproto v0.0.0-20180413175816-7fd901a49ba6 // indirect
+	google.golang.org/genproto v0.0.0-20180413175816-7fd901a49ba6
 	google.golang.org/grpc v1.11.3
+	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
+	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect
 )

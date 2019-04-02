@@ -22,16 +22,9 @@ func WithMetrics(app string, opNameFunc func(r *http.Request) string) Option {
 	if opNameFunc == nil {
 		opNameFunc = PathWithCleanID
 	}
-	return &metricsOption{app, opNameFunc}
-}
 
-type metricsOption struct {
-	app        string
-	opNameFunc func(r *http.Request) string
-}
+	constLabels := prometheus.Labels{"service": app, "instance": getHostname()}
 
-func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error) {
-	constLabels := prometheus.Labels{"service": opt.app, "instance": getHostname()}
 	requestDuration := prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace:   "http",
 		Subsystem:   "request",
@@ -66,15 +59,20 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 	prometheus.Unregister(requestCounter)
 	prometheus.Unregister(responseSize)
 
-	if err := prometheus.Register(requestDuration); err != nil {
-		return nil, err
-	}
-	if err := prometheus.Register(requestCounter); err != nil {
-		return nil, err
-	}
-	if err := prometheus.Register(responseSize); err != nil {
-		return nil, err
-	}
+	prometheus.MustRegister(requestDuration, requestCounter, responseSize)
+
+	return &metricsOption{app, opNameFunc, requestDuration, requestCounter, responseSize}
+}
+
+type metricsOption struct {
+	app             string
+	opNameFunc      func(r *http.Request) string
+	requestDuration *prometheus.HistogramVec
+	requestCounter  *prometheus.CounterVec
+	responseSize    *prometheus.HistogramVec
+}
+
+func (opt *metricsOption) WrapHandler(handler http.Handler) http.Handler {
 
 	mw := http.HandlerFunc(func(writer http.ResponseWriter, r *http.Request) {
 		instrumentedWriter := negroni.NewResponseWriter(writer)
@@ -86,15 +84,15 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 				"path":   opt.opNameFunc(r),
 			}
 
-			requestCounter.With(l).Inc()
-			requestDuration.With(l).Observe(float64(time.Since(begun).Seconds() * 1000))
-			responseSize.With(l).Observe(float64(instrumentedWriter.Size()))
+			opt.requestCounter.With(l).Inc()
+			opt.requestDuration.With(l).Observe(float64(time.Since(begun).Seconds() * 1000))
+			opt.responseSize.With(l).Observe(float64(instrumentedWriter.Size()))
 		}(time.Now())
 
 		handler.ServeHTTP(instrumentedWriter, r)
 	})
 
-	return mw, nil
+	return mw
 }
 
 // PathWithCleanID replace string values that look like ids (uuids and int) with "*"

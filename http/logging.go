@@ -15,7 +15,7 @@ func WithLogging(app string) Option {
 
 type loggingOption struct{ app string }
 
-func (opt *loggingOption) WrapHandler(handler http.Handler) (http.Handler, error) {
+func (opt *loggingOption) WrapHandler(handler http.Handler) http.Handler {
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		handler.ServeHTTP(w, r)
@@ -39,5 +39,5 @@ func (opt *loggingOption) WrapHandler(handler http.Handler) (http.Handler, error
 	})
 	n := negroni.New()
 	n.UseHandler(h)
-	return n, nil
+	return n
 }

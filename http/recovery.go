@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/bakins/net-http-recover"
+	recovery "github.com/bakins/net-http-recover"
 )
 
 // WithRecovery configures panic recovery for that server
@@ -17,6 +17,6 @@ type recoveryOption struct {
 	printStack bool
 }
 
-func (opt *recoveryOption) WrapHandler(handler http.Handler) (http.Handler, error) {
-	return recovery.Handler(opt.writer, handler, opt.printStack), nil
+func (opt *recoveryOption) WrapHandler(handler http.Handler) http.Handler {
+	return recovery.Handler(opt.writer, handler, opt.printStack)
 }
