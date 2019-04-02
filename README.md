@@ -83,7 +83,7 @@ func main() {
     }),
     Options: []httpserver.Option{
       httpserver.WithLogging("http-echo"),
-      httpserver.WithTracing("localhost:6831", "example"),
+      httpserver.WithTracing("localhost:6831", "example", nil, nil),
       httpserver.WithMetrics("http-echo", nil),
       httpserver.WithRecovery(os.Stderr, true),
     },
@@ -93,7 +93,7 @@ func main() {
   }
 
   // start server
-  go httpServer.ListenAndServe(context.Background(), ":8000")
+  go httpserver.ListenAndServe(context.Background(), ":8000", httpServer)
   // start /metrics endpoint
   goserver.ListenAndServeMetricsAndHealth(":8080", nil)
 }

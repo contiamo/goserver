@@ -28,12 +28,12 @@ type corsOption struct {
 	allowCredentials bool
 }
 
-func (opt *corsOption) WrapHandler(handler http.Handler) (http.Handler, error) {
+func (opt *corsOption) WrapHandler(handler http.Handler) http.Handler {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   opt.allowedOrigins,
 		AllowedMethods:   opt.allowedMethods,
 		AllowedHeaders:   opt.allowedHeaders,
 		AllowCredentials: opt.allowCredentials,
 	})
-	return c.Handler(handler), nil
+	return c.Handler(handler)
 }

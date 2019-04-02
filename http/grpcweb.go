@@ -14,7 +14,7 @@ func WithGRPC(srv *grpc.Server) Option {
 
 type grpcwebOption struct{ srv *grpc.Server }
 
-func (opt *grpcwebOption) WrapHandler(handler http.Handler) (http.Handler, error) {
+func (opt *grpcwebOption) WrapHandler(handler http.Handler) http.Handler {
 	wrappedGrpc := grpcweb.WrapServer(opt.srv)
 	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 		if wrappedGrpc.IsGrpcWebRequest(req) {
@@ -22,5 +22,5 @@ func (opt *grpcwebOption) WrapHandler(handler http.Handler) (http.Handler, error
 			return
 		}
 		handler.ServeHTTP(resp, req)
-	}), nil
+	})
 }

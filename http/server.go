@@ -33,14 +33,10 @@ type Config struct {
 // srv.ListenAndServe(context.Background())
 func New(cfg *Config) (*http.Server, error) {
 	var (
-		h   = cfg.Handler
-		err error
+		h = cfg.Handler
 	)
 	for _, opt := range cfg.Options {
-		h, err = opt.WrapHandler(h)
-		if err != nil {
-			return nil, err
-		}
+		h = opt.WrapHandler(h)
 	}
 	return &http.Server{
 		Handler:        h,
@@ -68,5 +64,5 @@ func ListenAndServe(ctx context.Context, addr string, srv *http.Server) error {
 
 // Option is the interface for all server options defined in this package
 type Option interface {
-	WrapHandler(handler http.Handler) (http.Handler, error)
+	WrapHandler(handler http.Handler) http.Handler
 }

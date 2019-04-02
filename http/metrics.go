@@ -30,7 +30,7 @@ type metricsOption struct {
 	opNameFunc func(r *http.Request) string
 }
 
-func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error) {
+func (opt *metricsOption) WrapHandler(handler http.Handler) http.Handler {
 	constLabels := prometheus.Labels{"service": opt.app, "instance": getHostname()}
 	requestDuration := prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace:   "http",
@@ -66,15 +66,7 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 	prometheus.Unregister(requestCounter)
 	prometheus.Unregister(responseSize)
 
-	if err := prometheus.Register(requestDuration); err != nil {
-		return nil, err
-	}
-	if err := prometheus.Register(requestCounter); err != nil {
-		return nil, err
-	}
-	if err := prometheus.Register(responseSize); err != nil {
-		return nil, err
-	}
+	prometheus.MustRegister(requestDuration, requestCounter, responseSize)
 
 	mw := http.HandlerFunc(func(writer http.ResponseWriter, r *http.Request) {
 		instrumentedWriter := negroni.NewResponseWriter(writer)
@@ -94,7 +86,7 @@ func (opt *metricsOption) WrapHandler(handler http.Handler) (http.Handler, error
 		handler.ServeHTTP(instrumentedWriter, r)
 	})
 
-	return mw, nil
+	return mw
 }
 
 // PathWithCleanID replace string values that look like ids (uuids and int) with "*"

@@ -14,10 +14,13 @@ import (
 
 // mainly from "github.com/opentracing-contrib/go-stdlib/nethttp"
 
-// WithTracing configures tracing for that server
+// WithTracing configures tracing for that server; if configuration fails, WithTracing will panic
 func WithTracing(server, app string, tags map[string]string, opNameFunc func(r *http.Request) string) Option {
 	if opNameFunc == nil {
 		opNameFunc = MethodAndPathCleanID
+	}
+	if err := goserver.InitTracer(server, app); err != nil {
+		panic(err)
 	}
 	return &tracingOption{server, app, tags, opNameFunc}
 }
@@ -28,10 +31,7 @@ type tracingOption struct {
 	opNameFunc  func(r *http.Request) string
 }
 
-func (opt *tracingOption) WrapHandler(handler http.Handler) (http.Handler, error) {
-	if err := goserver.InitTracer(opt.server, opt.app); err != nil {
-		return nil, err
-	}
+func (opt *tracingOption) WrapHandler(handler http.Handler) http.Handler {
 	mw := middleware(
 		opentracing.GlobalTracer(),
 		handler,
@@ -46,7 +46,7 @@ func (opt *tracingOption) WrapHandler(handler http.Handler) (http.Handler, error
 	)
 	n := negroni.New()
 	n.UseHandler(mw)
-	return n, nil
+	return n
 }
 
 type mwOptions struct {
