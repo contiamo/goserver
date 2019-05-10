@@ -53,10 +53,17 @@ func main() {
     logrus.Fatal(err)
   }
 
+  ctx, cancel := context.WithCancel(context.Background()
+  c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
   // start server
-  go grpcserver.ListenAndServe(context.Background(), ":3001", grpcServer)
+  go grpcserver.ListenAndServe(ctx, ":3001", grpcServer)
   // start /metrics endpoint
-  goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+  go goserver.ListenAndServeMonitoring(ctx, ":8080", nil)
+
+  <-c
+  cancel()
 }
 ```
 
@@ -92,10 +99,17 @@ func main() {
     logrus.Fatal(err)
   }
 
+  ctx, cancel := context.WithCancel(context.Background()
+  c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+
   // start server
-  go httpserver.ListenAndServe(context.Background(), ":8000", httpServer)
+  go httpserver.ListenAndServe(ctx, ":8000", httpServer)
   // start /metrics endpoint
-  goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+  go goserver.ListenAndServeMonitoring(ctx, ":8080", nil)
+
+  <-c
+  cancel()
 }
 ```
 

@@ -1,6 +1,7 @@
 package goserver
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -48,7 +49,29 @@ func InitTracer(server, app string) error {
 }
 
 // ListenAndServeMetricsAndHealth starts up an HTTP server serving /metrics and /health
+//
+// Deprecated: use ListenAndServeMonitoring instead
 func ListenAndServeMetricsAndHealth(addr string, healthHandler http.Handler) error {
+	return monitoringServer(addr, healthHandler).ListenAndServe()
+}
+
+// ListenAndServeMonitoring starts up an HTTP server serving /metrics and /health.
+//
+// When the context is cancelled, the server will be gracefully shutdown.
+func ListenAndServeMonitoring(ctx context.Context, addr string, healthHandler http.Handler) error {
+	srv := monitoringServer(addr, healthHandler)
+
+	go func() {
+		<-ctx.Done()
+		shutdownContext, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		srv.Shutdown(shutdownContext)
+	}()
+
+	return srv.ListenAndServe()
+}
+
+func monitoringServer(addr string, healthHandler http.Handler) *http.Server {
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 	if healthHandler != nil {
@@ -58,9 +81,8 @@ func ListenAndServeMetricsAndHealth(addr string, healthHandler http.Handler) err
 			w.Write([]byte(`{"msg":"ok"}`))
 		})
 	}
-	srv := &http.Server{
+	return &http.Server{
 		Addr:    addr,
 		Handler: mux,
 	}
-	return srv.ListenAndServe()
 }
