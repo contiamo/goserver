@@ -10,27 +10,39 @@ import (
 	"github.com/uber/jaeger-client-go/config"
 )
 
-// InitTracer asserts that the global tracer is initialized
+// InitTracer asserts that the global tracer is initialized.
+//
+// This will read the configuration from the "JAEGER_*"" environment variables.
+// Overriding the empty values with the supplied server and app value.  If a
+// sampler type is not configured via the environment variables, then InitTracer
+// will be configured with the constant sampler.
 func InitTracer(server, app string) error {
 	global := opentracing.GlobalTracer()
 	if _, ok := global.(opentracing.NoopTracer); ok {
-		cfg := config.Configuration{
-			Sampler: &config.SamplerConfig{
-				Type:  "const",
-				Param: 1,
-			},
-			Reporter: &config.ReporterConfig{
-				LogSpans:            false,
-				BufferFlushInterval: 1 * time.Second,
-				LocalAgentHostPort:  server,
-			},
-		}
-
-		tracer, _, err := cfg.New(app, config.Logger(jaeger.StdLogger))
+		cfg, err := config.FromEnv()
 		if err != nil {
 			return err
 		}
-		opentracing.SetGlobalTracer(tracer)
+		if cfg.ServiceName == "" {
+			cfg.ServiceName = app
+		}
+
+		if cfg.Sampler.Type == "" {
+			cfg.Sampler.Type = "const"
+			cfg.Sampler.Param = 1
+		}
+
+		if cfg.Reporter.BufferFlushInterval == 0 {
+			cfg.Reporter.BufferFlushInterval = 1 * time.Second
+		}
+		if cfg.Reporter.LocalAgentHostPort == "" {
+			cfg.Reporter.LocalAgentHostPort = server
+		}
+
+		_, err = cfg.InitGlobalTracer(app, config.Logger(jaeger.StdLogger))
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
