@@ -12,6 +12,7 @@ import (
 	"io"
 )
 
+// Decrypt will decrypt the msg using the provided key
 func Decrypt(msg, key string) (string, error) {
 	msgBytes, err := base64.StdEncoding.DecodeString(msg)
 	if err != nil {

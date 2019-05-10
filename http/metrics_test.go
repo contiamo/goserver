@@ -16,7 +16,7 @@ import (
 
 var _ = Describe("Metrics", func() {
 	It("should be possible to configure metrics collection", func() {
-		srv, err := createServer([]Option{WithMetrics("test")})
+		srv, err := createServer([]Option{WithMetrics("test", nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -40,7 +40,7 @@ var _ = Describe("Metrics", func() {
 	})
 
 	It("should support websockets", func() {
-		srv, err := createServer([]Option{WithMetrics("test")})
+		srv, err := createServer([]Option{WithMetrics("test", nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
 		defer ts.Close()
