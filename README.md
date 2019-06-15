@@ -145,3 +145,19 @@ func main() {
   http.ListenAndServe(":8080", r)
 }
 ```
+
+To run the server and metrics on a different port:
+
+```
+  go func() {
+  	err := http.ListenAndServe(":8080", r)
+	if err != nil {
+		log.Fatal(err)
+	}
+  }()
+
+  err = goserver.ListenAndServeMetricsAndHealth(:8081, nil)
+  if err != nil {
+	log.Fatal(err)
+  }
+```
