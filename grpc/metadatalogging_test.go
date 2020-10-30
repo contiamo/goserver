@@ -31,12 +31,16 @@ var _ = Describe("Logging", func() {
 		cli, err := createPlaintextTestClient(ctx, ":3003")
 		Expect(err).NotTo(HaveOccurred())
 
-		md := metadata.New(map[string]string{"test": "value"})
+		md := metadata.New(map[string]string{"test": "value", "token": "foo", "password": "secret", "secret": "hide me"})
 		ctx = metadata.NewOutgoingContext(ctx, md)
 		resp, err := cli.Ping(ctx, &test.PingReq{Msg: "test"})
 		Expect(err).NotTo(HaveOccurred())
 		Expect(resp.Msg).To(Equal("test"))
 
-		Expect(strings.Contains(buf.String(), "test=value")).To(BeTrue(), "This should be the value in logs but got %s", buf.String())
+		logLine := buf.String()
+		Expect(strings.Contains(logLine, "test=value")).To(BeTrue(), "This should be the value in logs but got %s", logLine)
+		Expect(strings.Contains(logLine, "token=\"****\"")).To(BeTrue(), "This should be the value in logs but got %s", logLine)
+		Expect(strings.Contains(logLine, "password=\"****\"")).To(BeTrue(), "This should be the value in logs but got %s", logLine)
+		Expect(strings.Contains(logLine, "secret=\"****\"")).To(BeTrue(), "This should be the value in logs but got %s", logLine)
 	})
 })

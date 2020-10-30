@@ -28,7 +28,7 @@ var _ = Describe("Metrics", func() {
 		_, err = http.Get("http://localhost:4002/metrics_test")
 		Expect(err).NotTo(HaveOccurred())
 
-		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+		go goserver.ListenAndServeMonitoring(ctx, ":8080", nil)
 		// it takes some time to run the server, can't be accessed immediately
 		time.Sleep(100 * time.Millisecond)
 
@@ -40,6 +40,9 @@ var _ = Describe("Metrics", func() {
 	})
 
 	It("should support websockets", func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
 		srv, err := createServer([]Option{WithMetrics("test", nil)})
 		Expect(err).NotTo(HaveOccurred())
 		ts := httptest.NewServer(srv.Handler)
@@ -48,7 +51,7 @@ var _ = Describe("Metrics", func() {
 		err = testWebsocketEcho(ts.URL)
 		Expect(err).NotTo(HaveOccurred())
 
-		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+		go goserver.ListenAndServeMonitoring(ctx, ":8080", nil)
 		// it takes some time to run the server, can't be accessed immediately
 		time.Sleep(100 * time.Millisecond)
 

@@ -50,8 +50,21 @@ func extractLoggingFields(ctx context.Context) logrus.Fields {
 
 	if ctxMd, ok := metadata.FromIncomingContext(ctx); ok {
 		for field, values := range ctxMd {
+			if isSecure(field) {
+				fields[field] = "****"
+				continue
+			}
 			fields[field] = strings.Join(values, ",")
 		}
 	}
 	return fields
+}
+
+
+func isSecure(name string) bool {
+	name = strings.ToLower(name)
+	return strings.Contains(name, "auth") ||
+		strings.Contains(name, "token") ||
+		strings.Contains(name, "password") ||
+		strings.Contains(name, "secret")
 }

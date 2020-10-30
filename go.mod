@@ -1,11 +1,14 @@
 module github.com/contiamo/goserver
 
+go 1.15
+
 require (
 	github.com/apache/thrift v0.0.0-20161221203622-b2a4d4ae21c7 // indirect
 	github.com/bakins/net-http-recover v0.0.0-20141007104922-6cba69d01459
 	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect
 	github.com/gogo/protobuf v1.2.1 // indirect
+	github.com/gogo/status v1.1.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.3.1
 	github.com/google/uuid v0.0.0-20161128191214-064e2069ce9c
@@ -37,8 +40,8 @@ require (
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
 	golang.org/x/sys v0.0.0-20180419222023-a2a45943ae67 // indirect
 	golang.org/x/text v0.3.0 // indirect
-	google.golang.org/genproto v0.0.0-20180413175816-7fd901a49ba6
-	google.golang.org/grpc v1.11.3
+	google.golang.org/genproto v0.0.0-20180518175338-11a468237815
+	google.golang.org/grpc v1.12.0
 	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
 	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 	gopkg.in/yaml.v2 v2.2.1 // indirect

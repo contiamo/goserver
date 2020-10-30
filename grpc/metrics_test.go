@@ -23,7 +23,7 @@ var _ = Describe("Metrics", func() {
 		defer cancel()
 
 		go ListenAndServe(ctx, ":3004", srv)
-		go goserver.ListenAndServeMetricsAndHealth(":8080", nil)
+		go goserver.ListenAndServeMonitoring(ctx, ":8080", nil)
 		// it takes some time to run the servers, can't be accessed immediately
 		time.Sleep(100 * time.Millisecond)
 

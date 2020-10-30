@@ -27,9 +27,9 @@ changelog: ## Print git hitstory based changelog
 ################################
 ################################
 .PHONY: lint
-lint: ## Verifies `golint` passes
+lint: ## Verifies `golangci-lint` passes
 	@echo "+ $@"
-	@golint -set_exit_status $(shell go list ./... | grep -v "example" | grep -v "grpc/test")
+	@golangci-lint run --timeout=10m --skip-files ^example,^grpc/test --disable unused,errcheck ./...
 
 .PHONY: fmt
 fmt: $(shell find ./grpc ./http ./aes) ## Verifies all files have been `gofmt`ed
