@@ -29,7 +29,7 @@ func Decrypt(msg, key string) (string, error) {
 	if _, err = io.Copy(buf, decoder); err != nil {
 		return "", err
 	}
-	return string(buf.Bytes()), nil
+	return buf.String(), nil
 }
 
 // NewReader returns a new aes reader

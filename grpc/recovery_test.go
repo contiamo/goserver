@@ -7,8 +7,8 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/contiamo/goserver/grpc/test"
 	utils "github.com/contiamo/goserver/test"
@@ -33,7 +33,7 @@ var _ = Describe("Recovery", func() {
 		_, err = cli.Panic(ctx, &test.PingReq{Msg: "Very bad panic"})
 
 		Expect(err).To(HaveOccurred())
-		Expect(grpc.Code(err)).To(Equal(codes.Internal))
+		Expect(status.Code(err)).To(Equal(codes.Internal))
 		Expect(strings.Contains(buf.String(), `level=error msg="Very bad panic" stacktrace=`)).To(BeTrue(), "The logs should contain the error message and stacktrace but got %s", buf.String())
 	})
 })
