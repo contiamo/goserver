@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"github.com/contiamo/go-base/v2/pkg/tracing"
+	"github.com/contiamo/go-base/v4/pkg/tracing"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	opentracing "github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"
