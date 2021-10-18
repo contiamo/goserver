@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/bakins/net-http-recover v0.0.0-20141007104922-6cba69d01459
-	github.com/contiamo/go-base/v4 v4.5.1
+	github.com/contiamo/go-base/v4 v4.7.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/uuid v1.0.0
 	github.com/gorilla/websocket v1.4.2
@@ -21,7 +21,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/urfave/negroni v1.0.0
-	golang.org/x/net v0.0.0-20200625001655-4c5254603344
+	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
 	google.golang.org/genproto v0.0.0-20190819201941-24fa4b261c55
 	google.golang.org/grpc v1.26.0
 )
